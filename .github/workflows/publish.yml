@@ -3,6 +3,7 @@ name: Publish mosaicprot to PyPI
 on:
   release:
     types: [published]
+  workflow_dispatch:  # Manual trigger added here (no duplicate section)
 
 jobs:
   publish:
@@ -22,7 +23,3 @@ jobs:
         run: python -m build
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-on:
-  release:
-    types: [published]
-  workflow_dispatch:  # ← Add this line
