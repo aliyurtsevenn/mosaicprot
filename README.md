@@ -24,9 +24,6 @@ This command detects all potential ORFs from a transcriptome FASTA file and tran
 
 mosaicprot detect_ORFs --transcriptome_file <transcriptome.fasta> [--threshold 30] [--output_file_type fasta]
 
-pgsql
-Copy
-Edit
 
 **Parameters:**
 
@@ -43,10 +40,6 @@ This command separates ORF products into refProts and altProts based on a known 
 **Usage:**
 
 mosaicprot separate_ORFs --ORFeome_file <orfs.fasta> --reference_proteome_file <ref.fasta> [--output_alt_file altProts.fasta] [--output_ref_file refProts.fasta]
-
-pgsql
-Copy
-Edit
 
 **Parameters:**
 
@@ -70,10 +63,6 @@ mosaicprot simulate_chimeric_proteins
 --transcriptome_file <transcriptome.fasta>
 [--processor_num 1]
 [--repetition_ keep_first]
-
-sql
-Copy
-Edit
 
 **Parameters:**
 
