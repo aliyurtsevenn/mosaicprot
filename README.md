@@ -109,10 +109,10 @@ pip --version
 pip install mosaicprot
 
 2. For development/editable installation  
-'''bash
 git clone https://github.com/aliyurtsevenn/mosaicprot.git
 cd mosaicprot
 pip install -e .
+
 
 MosaicProt was developed to advance research on mosaic translation and programmed ribosomal frameshifting. It has enabled the discovery of chimeric proteins across various transcript types (mRNA, ncRNA, rRNA, tRNA) and is adaptable to any annotated or de novo sequenced transcriptome. For biological context and related studies, see our publication: Çakır et al.(2024, preprint).
 
