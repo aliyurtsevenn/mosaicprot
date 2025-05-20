@@ -62,7 +62,7 @@ mosaicprot simulate_chimeric_proteins
 --altProts_file <altProts.fasta>
 --transcriptome_file <transcriptome.fasta>
 [--processor_num 1]
-[--repetition_ keep_first]
+[--repetition keep_first]
 
 **Parameters:**
 
@@ -71,7 +71,7 @@ mosaicprot simulate_chimeric_proteins
 - `--altProts_file` (required): FASTA file of all alternative proteins.
 - `--transcriptome_file` (required): Transcriptome FASTA file.
 - `--processor_num`: Number of processors to use for parallel execution (default: 1).
-- `--repetition_`: Strategy to handle duplicates:
+- `--repetition : Strategy to handle duplicates:
   - `keep_first`: Keep only the first of duplicate chimeric proteins.
   - `keep_all`: Keep all duplicates.
   - `drop_all`: Remove all duplicates.
