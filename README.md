@@ -109,7 +109,7 @@ pip --version
 pip install mosaicprot
 
 2. For development/editable installation  
-git clone https://github.com/umutcakir/mosaicprot.git
+git clone https://github.com/aliyurtsevenn/mosaicprot.git
 cd mosaicprot
 pip install -e .
 
