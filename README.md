@@ -14,7 +14,7 @@ The simulation engine systematically explores multiple reading frames and frames
 
 ## Available Commands
 
-The tool has three commands, which correspond to the modules described in Figure 1 (the ORF detector module, the altProt/refProt separator module, and the chimeric modeler module):
+The tool has three commands, which correspond to the modules described in Figure 1 of the published manuscript (the ORF detector module, the altProt/refProt separator module, and the chimeric modeler module):
 
 ### 1. detect_ORFs
 
@@ -22,7 +22,7 @@ This command detects all potential ORFs from a transcriptome FASTA file and tran
 
 **Usage:**
 
-mosaicprot detect_ORFs --transcriptome_file <transcriptome.fasta> [--threshold 30] [--output_file_type fasta]
+> mosaicprot detect_ORFs --transcriptome_file <transcriptome.fasta> [--threshold 30] [--output_file_type fasta]
 
 
 **Parameters:**
@@ -31,7 +31,7 @@ mosaicprot detect_ORFs --transcriptome_file <transcriptome.fasta> [--threshold 3
 - `--threshold`: Minimum ORF length in amino acids (default: 30).
 - `--output_file_type`: Output format (fasta or xml, default: fasta).
 
-The input file name `<transcriptome.fasta>` is user-defined but must end with “.fasta”. The output file name is built by the addition of a prefix “_min_30aa_ORFs.fasta” to the input file name, if the threshold is 30. For example, input file name: “my_transcriptome.fasta”; output file name: “my_transcriptome_min_30aa_ORFs.fasta”. The prefix “min_30aa_ORFs” stands for regions (ORF) that are fee from in-frame stop codons and can be in silico translated to altProts longer than 29 aa. If the output file format is chosen to be xml, it cannot be used with the next module, which accepts only FASTA files. This xml option was provided to enable export to other pipelines that require xml files as inputs.
+The input file `<transcriptome.fasta>` contains an annotated or a de novo sequenced transcriptome of any organism. The output file name is built by the addition of a prefix “_min_30aa_ORFs.fasta” to the input file name, if the threshold is 30. For example, input file name: “my_transcriptome.fasta”; output file name: “my_transcriptome_min_30aa_ORFs.fasta”. The prefix “min_30aa_ORFs” stands for regions (ORF) that are free from in-frame stop codons and can be in silico translated to altProts longer than 29 aa. If the output file format is chosen to be xml, it cannot be used with the next module, which accepts only FASTA files. This xml option was provided to enable export to other pipelines that require xml files as inputs.
 
 ### 2. separate_ORFs
 
@@ -39,7 +39,7 @@ This command separates ORF products into refProts and altProts based on a known 
 
 **Usage:**
 
-mosaicprot separate_ORFs --ORFeome_file <orfs.fasta> --reference_proteome_file <ref.fasta> [--output_alt_file altProts.fasta] [--output_ref_file refProts.fasta]
+> mosaicprot separate_ORFs --ORFeome_file <orfs.fasta> --reference_proteome_file <ref.fasta> [--output_alt_file altProts.fasta] [--output_ref_file refProts.fasta]
 
 **Parameters:**
 
@@ -48,7 +48,7 @@ mosaicprot separate_ORFs --ORFeome_file <orfs.fasta> --reference_proteome_file <
 - `--output_alt_file`: Output file for alternative proteins (default: altProts.fasta).
 - `--output_ref_file`: Output file for reference proteins (default: refProts.fasta).
 
-The input file names `<orfs.fasta>` and `<ref.fasta>` are user-defined but must end with “.fasta”. The default output file names altProts.fasta and refProts.fasta can be modified only after the generation of output files.
+The input file `<orfs.fasta>` is the output of module 1 (detect_ORFs). The input file `<ref.fasta>` contains a canonical proteome downloaded from a database or a user-defined canonical proteome. The default output file names are altProts.fasta and refProts.fasta.
 
 ### 3. simulate_chimeric_proteins
 
@@ -56,33 +56,33 @@ This command simulates chimeric proteins by combining segments of refProts and a
 
 **Usage:**
 
-mosaicprot simulate_chimeric_proteins
---candidate_altProt_list <altProt_candidates.txt>
---refProts_file <refProts.fasta>
---altProts_file <altProts.fasta>
---transcriptome_file <transcriptome.fasta>
-[--processor_num 1]
+> mosaicprot simulate_chimeric_proteins \
+--transcriptome_file <transcriptome.fasta> \
+--refProts_file <refProts.fasta> \
+--altProts_file <altProts.fasta> \
+--candidate_altProt_list <altProt_candidates.txt> \
+[--processor_num 1] \
 [--repetition keep_first]
 
 **Parameters:**
 
-- `--candidate_altProt_list` (required): List of selected alternative proteins to include in simulation.
+- `--candidate_altProt_list` (required): List of identifiers of selected alternative proteins to include in simulation.
 - `--refProts_file` (required): FASTA file of reference proteins.
 - `--altProts_file` (required): FASTA file of all alternative proteins.
 - `--transcriptome_file` (required): Transcriptome FASTA file.
 - `--processor_num`: Number of processors to use for parallel execution (default: 1).
-- `--repetition : Strategy to handle duplicates:
+- `--repetition`: Strategy to handle duplicates (default: keep_first).
   - `keep_first`: Keep only the first of duplicate chimeric proteins.
   - `keep_all`: Keep all duplicates.
   - `drop_all`: Remove all duplicates.
 
 **Output:** A file named `simulated_chimeric_proteins.fasta` containing the simulated chimeric proteins.
 
-The input file names `<altProt_candidates.txt>`, `<refProts.fasta>`, `<altProts.fasta>`, and `<transcriptome.fasta>` are user-defined but must end with “.fasta”. The input file `<transcriptome.fasta>` is the same file that was used as input for the first module (detect_ORFs). The input files `<refProts.fasta>` and `<altProts.fasta>` are the output files of the second module (separate_ORFs). The input file `<altProt_candidates.txt>` contains a user-defined list of altProts. It may correspond to conserved altProts, MS-supported altProts, or both. Thus, it may contain a subset of altProts from file `<altProts.fasta>` or the entire set of altProts (a copy of `<altProts.fasta>`), depending on the scope of a study.
+The input file `<transcriptome.fasta>` is the same file that was used as input for the first module (detect_ORFs). The input files `<refProts.fasta>` and `<altProts.fasta>` are the output files of the second module (separate_ORFs). The input file <altProt_candidates.txt> contains a user-defined list of altProt identifiers separated by a new line. It may correspond to conserved altProts, MS-supported altProts, or both. Thus, it may contain a subset of altProt identifiers from the file `<altProts.fasta>` or identifiers of the entire set of altProts, depending on the scope of a study.
 
 The number of processors to use for parallel execution (default: 1) can be user-defined based on the availability of CPU cores in the system.
 
-Duplicated models arise from altORF-altORF pairs (as opposed to refORF-altORF pairs) where one of the ORFs is considered as a refORF and the other one as an altORF, and then the other way around. The “drop_all” option of handling such duplicated models can be useful when the goal is to exclude chimeric models generated from altORF-altORF pairs.
+The flag [--repetition] helps deal with duplicated models. Such models arise from altORF-altORF pairs (as opposed to refORF-altORF pairs) where one of the ORFs is considered as a refORF and the other one as an altORF, and then the other way around. The “drop_all” option of handling such duplicated models can be useful when the goal is to exclude chimeric models generated from altORF-altORF pairs.
 
 ---
 
@@ -93,10 +93,10 @@ Duplicated models arise from altORF-altORF pairs (as opposed to refORF-altORF pa
 Before installing MosaicProt, ensure you have:
 
 1. Python3.6 or higher  
-python --version
+> python --version
 
 2. pip package manager  
-pip --version
+> pip --version
 
 3. System Requirements (recommended):  
 - 4GB+ RAM for large datasets  
@@ -114,7 +114,7 @@ pip --version
 - pip install -e .
 
 
-MosaicProt was developed to advance research on mosaic translation and programmed ribosomal frameshifting. It has enabled the discovery of chimeric proteins across various transcript types (mRNA, ncRNA, rRNA, tRNA) and is adaptable to any annotated or de novo sequenced transcriptome. For biological context and related studies, see our publication: Çakır et al.(2024, preprint).
+MosaicProt was developed to advance research on mosaic translation and programmed ribosomal frameshifting. It has enabled the discovery of chimeric proteins across various transcript types (mRNA, ncRNA, rRNA, tRNA) and is adaptable to any annotated or de novo sequenced transcriptome. For biological context and related studies, see our publication: Çakır et al. (2024, preprint).
 
 ---
 
