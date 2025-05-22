@@ -66,10 +66,10 @@ This command simulates chimeric proteins by combining segments of refProts and a
 
 **Parameters:**
 
-- `--candidate_altProt_list` (required): List of identifiers of selected alternative proteins to include in simulation.
+- `--transcriptome_file` (required): Transcriptome FASTA file.
 - `--refProts_file` (required): FASTA file of reference proteins.
 - `--altProts_file` (required): FASTA file of all alternative proteins.
-- `--transcriptome_file` (required): Transcriptome FASTA file.
+- `--candidate_altProt_list` (required): List of identifiers of selected alternative proteins to include in simulation.
 - `--processor_num`: Number of processors to use for parallel execution (default: 1).
 - `--repetition`: Strategy to handle duplicates (default: keep_first).
   - `keep_first`: Keep only the first of duplicate chimeric proteins.
@@ -106,12 +106,14 @@ Before installing MosaicProt, ensure you have:
 ### Installation
 
 1. Install from PyPI  
-- pip install mosaicprot
+> pip install mosaicprot
 
 2. For development/editable installation
-- git clone https://github.com/aliyurtsevenn/mosaicprot.git
-- cd mosaicprot
-- pip install -e .
+> git clone https://github.com/aliyurtsevenn/mosaicprot.git
+
+> cd mosaicprot
+
+> pip install -e .
 
 
 MosaicProt was developed to advance research on mosaic translation and programmed ribosomal frameshifting. It has enabled the discovery of chimeric proteins across various transcript types (mRNA, ncRNA, rRNA, tRNA) and is adaptable to any annotated or de novo sequenced transcriptome. For biological context and related studies, see our publication: Çakır et al. (2024, preprint).
