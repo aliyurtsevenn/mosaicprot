@@ -959,9 +959,9 @@ def main():
     )
     parser_chimeric.add_argument('--candidate_altProt_list', required=True,
                                  help="Candidate altProts for the simulation")
-    parser_chimeric.add_argument('--refProts_file', required=True, default="refProts.fasta",
+    parser_chimeric.add_argument('--refProts_file', default="refProts.fasta",
                                  help="Reference proteins file")
-    parser_chimeric.add_argument('--altProts_file', required=True, default="altProts.fasta",
+    parser_chimeric.add_argument('--altProts_file', default="altProts.fasta",
                                  help="Alternative proteins file")
     parser_chimeric.add_argument('--transcriptome_file', required=True, help="Transcriptome file")
     parser_chimeric.add_argument('--processor_num', type=int, default=1, help="Number of processors to use")
