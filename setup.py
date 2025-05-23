@@ -6,7 +6,6 @@ setup(
     packages=find_packages(),
     install_requires=[
         # List your dependencies here
-    "argparse",
     "biopython==1.85",
     "pandas==2.2.3"
     ],
