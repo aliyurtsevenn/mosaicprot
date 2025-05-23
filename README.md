@@ -78,7 +78,7 @@ This command simulates chimeric proteins by combining segments of refProts and a
 
 **Output:** A file named `simulated_chimeric_proteins.fasta` containing the simulated chimeric proteins.
 
-The input file `<transcriptome.fasta>` is the same file that was used as input for the first module (detect_ORFs). The input files `<refProts.fasta>` and `<altProts.fasta>` are the output files of the second module (separate_ORFs). The input file <altProt_candidates.txt> contains a user-defined list of altProt identifiers separated by a new line. It may correspond to conserved altProts, MS-supported altProts, or both. Thus, it may contain a subset of altProt identifiers from the file `<altProts.fasta>` or identifiers of the entire set of altProts, depending on the scope of a study.
+The input file `<transcriptome.fasta>` is the same file that was used as input for the first module (detect_ORFs). The input files `<refProts.fasta>` and `<altProts.fasta>` are the output files of the second module (separate_ORFs). The input file `<altProt_candidates.txt>` contains a user-defined list of altProt identifiers separated by a new line. It may correspond to conserved altProts, MS-supported altProts, or both. Thus, it may contain a subset of altProt identifiers from the file `<altProts.fasta>` or identifiers of the entire set of altProts, depending on the scope of a study.
 
 The number of processors to use for parallel execution (default: 1) can be user-defined based on the availability of CPU cores in the system.
 
