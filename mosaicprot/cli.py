@@ -9,13 +9,9 @@ import glob
 from collections import Counter, defaultdict
 from multiprocessing import Pool
 import time
-import tempfile
 import argparse
 import sys
 import shutil
-import pathlib
-import multiprocessing
-import subprocess
 from functools import partial, reduce
 from itertools import chain
 from typing import Iterator
@@ -255,7 +251,8 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
                 width) + "\n" + str(str(firstsequence) + str(secondsequence)) + "\n")
         temp_file_for_seq_store.write(to_file)
         temp_file_for_seq_store.close()
-        os.system("cp {} clean_seq_{}.fasta".format(filename, idx_num))
+
+        shutil.copy(filename, f"clean_seq_{idx_num}.fasta")
 
     def determine_frame_from_file(common_seq,
                                   file=os.path.join(results_directory, f"temp_file_for_seq_store_{idx_num}.txt")):
@@ -278,8 +275,10 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
                        file=os.path.join(results_directory, f"temp_file_for_seq_store_{idx_num}.txt")):
 
         for list_of_frameshift in list_of_frameshifts:
-            os.system(
-                """seqkit grep -r -n -i -p "\\{}" {} >> clean_seq_{}.fasta""".format(list_of_frameshift, file, idx_num))
+            with open(file) as input_handle, open(f"clean_seq_{idx_num}.fasta", "a") as output_handle:
+                for record in SeqIO.parse(input_handle, "fasta"):
+                    if list_of_frameshift.lower() in record.id.lower():
+                        SeqIO.write(record, output_handle, "fasta")
         return True
 
     try:
@@ -638,7 +637,10 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
 
         try:
             if os.path.exists(f"clean_seq_{idx_num}.fasta"):
-                os.system(f"cat clean_seq_{idx_num}.fasta >> your_final_result_{idx_num}.fasta")
+                with open(f"clean_seq_{idx_num}.fasta", "r") as src, open(f"your_final_result_{idx_num}.fasta",
+                                                                          "a") as dst:
+                    dst.write(src.read())
+
         except:
             log_step(temp_file_name, f"clean_seq_{idx_num}.fasta file is not found for {category_type}")
 
@@ -664,8 +666,16 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
         except Exception as e:
             log_step(temp_file_name, f"Error while trying to remove temp_file_for_seq_store_temp_{idx_num}.txt: {e}")
 
-    os.system(
-        f"awk '/^>/{{ $0 = $0 \"_\" (++i) }}1' your_final_result_{idx_num}.fasta > your_final_result_before_clean_{idx_num}.fasta 2>/dev/null")
+    input_file = f"your_final_result_{idx_num}.fasta"
+    output_file = f"your_final_result_before_clean_{idx_num}.fasta"
+
+    i = 1
+    with open(input_file, "r") as infile, open(output_file, "w") as outfile:
+        for line in infile:
+            if line.startswith(">"):
+                line = line.strip() + f"_{i}\n"
+                i += 1
+            outfile.write(line)
 
     final_results = SeqIO.to_dict(SeqIO.parse(f"your_final_result_before_clean_{idx_num}.fasta", "fasta"))
     final_results_to_list = getList(final_results)
@@ -713,8 +723,12 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
 
-    os.system(
-        f"seqtk seq -L 11 clean_upload_result_{idx_num}.fasta > {os.path.join(results_directory, f'requested_file_{idx_num}.fasta')}")
+    input_file = f"clean_upload_result_{idx_num}.fasta"
+    output_file = os.path.join(results_directory, f"requested_file_{idx_num}.fasta")
+    with open(input_file, "r") as infile, open(output_file, "w") as outfile:
+        for record in SeqIO.parse(infile, "fasta"):
+            if len(record.seq) >= 11:
+                SeqIO.write(record, outfile, "fasta")
 
 
     try:
@@ -750,14 +764,11 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
         log_step(temp_file_name, f"Error while trying to remove clean_final_result_{idx_num}.fasta: {e}")
 
     temp_path_ = os.path.join(".mosaic_prot_results", f"temp_sequence_archieve_{idx_num}.fasta")
-    os.system("cat '{forward_of_mrna_onlyalt}' '{mrna_onlyref}' > {temp_file_}".format(
-        forward_of_mrna_onlyalt=altprots_file, mrna_onlyref=refprots_file, temp_file_=temp_path_))
-    results_directory = ".mosaic_prot_results"
 
-    if not os.path.exists(results_directory):
-        os.makedirs(results_directory)
-
-    temp_path_ = os.path.join(results_directory, f"temp_sequence_archieve_{idx_num}.fasta")
+    with open(temp_path_, "w") as outfile:
+        for file_path in [altprots_file, refprots_file]:
+            with open(file_path, "r") as infile:
+                outfile.write(infile.read())
 
     results_directory = ".mosaic_prot_results"
 
@@ -766,8 +777,27 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
 
     temp_path_ = os.path.join(results_directory, f"temp_sequence_archieve_{idx_num}.fasta")
 
-    os.system(
-        f"perl -i.withoutnumbers -pe 'BEGIN{{$N=\"00000001\"}}next unless /^>/;s/(>\\S+)/$1|$N/;$N++' {temp_path_}")
+    results_directory = ".mosaic_prot_results"
+
+    if not os.path.exists(results_directory):
+        os.makedirs(results_directory)
+
+    temp_path_ = os.path.join(results_directory, f"temp_sequence_archieve_{idx_num}.fasta")
+    backup_path = temp_path_ + ".withoutnumbers"  # to mimic Perl's backup
+
+    shutil.copyfile(temp_path_, backup_path)
+
+    updated_records = []
+    counter = 1
+    with open(temp_path_, "r") as infile:
+        for record in SeqIO.parse(infile, "fasta"):
+            record.id += f"|{counter:08d}"  # zero-padded to 8 digits
+            record.description = record.id  # update full header line
+            updated_records.append(record)
+            counter += 1
+
+    with open(temp_path_, "w") as outfile:
+        SeqIO.write(updated_records, outfile, "fasta")
 
     sequence_archive = SeqIO.to_dict(SeqIO.parse(temp_path_, "fasta"))
 
@@ -795,8 +825,6 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
                 to_file_for_requested_file_filtered = to_file_for_requested_file_filtered + str(
                     ">" + requested_item + "\n" + str(requested_file[requested_item].seq) + "\n")
 
-    import os
-
     results_directory = ".mosaic_prot_results"
 
     if not os.path.exists(results_directory):
@@ -806,8 +834,15 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
 
     with open(file_path, 'w+') as file_for_requested_file_filtered:
         file_for_requested_file_filtered.write(to_file_for_requested_file_filtered)
+    updated_records = []
+    with open(file_path, "r") as infile:
+        for record in SeqIO.parse(infile, "fasta"):
+            record.id += "_CHIMERIC"
+            record.description = record.id
+            updated_records.append(record)
 
-    os.system(f"perl -pi -e 's/^(>.*)$/$1_CHIMERIC/g' {file_path}")
+    with open(file_path, "w") as outfile:
+        SeqIO.write(updated_records, outfile, "fasta")
 
 
 
@@ -826,14 +861,7 @@ def worker_process(args):
 
 
 def split_file(input_file, output_dir, num_chunks):
-    """
-    Splits a file into a specified number of chunks.
 
-    Args:
-        input_file (str): Path to the input file.
-        output_dir (str): Directory to save the chunks.
-        num_chunks (int): Number of chunks to split the file into.
-    """
     with open(input_file, 'r') as f:
         lines = f.readlines()
 
