@@ -255,7 +255,9 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
                 width) + "\n" + str(str(firstsequence) + str(secondsequence)) + "\n")
         temp_file_for_seq_store.write(to_file)
         temp_file_for_seq_store.close()
-        os.system("cp {} clean_seq_{}.fasta".format(filename, idx_num))
+        shutil.copy(filename, f"clean_seq_{idx_num}.fasta")
+
+
 
     def determine_frame_from_file(common_seq,
                                   file=os.path.join(results_directory, f"temp_file_for_seq_store_{idx_num}.txt")):
