@@ -730,13 +730,8 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
 
-    input_file = f"clean_upload_result_{idx_num}.fasta"
-    output_file = os.path.join(results_directory, f"requested_file_{idx_num}.fasta")
-    
-    with open(output_file, "w") as outfile:
-        for record in SeqIO.parse(input_file, "fasta"):
-            if len(record.seq) >= 11:
-                SeqIO.write(record, outfile, "fasta")
+    os.system(
+        f"seqtk seq -L 11 clean_upload_result_{idx_num}.fasta > {os.path.join(results_directory, f'requested_file_{idx_num}.fasta')}")
 
 
     try:
