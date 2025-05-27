@@ -278,8 +278,14 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
                        file=os.path.join(results_directory, f"temp_file_for_seq_store_{idx_num}.txt")):
 
         for list_of_frameshift in list_of_frameshifts:
-            os.system(
-                """seqkit grep -r -n -i -p "\\{}" {} >> clean_seq_{}.fasta""".format(list_of_frameshift, file, idx_num))
+            pattern = re.compile(list_of_frameshift, re.IGNORECASE)
+            input_file = file
+            output_file = f"clean_seq_{idx_num}.fasta"
+            
+            with open(output_file, "a") as out_handle:
+                for record in SeqIO.parse(input_file, "fasta"):
+                    if pattern.search(str(record.seq)):
+                        SeqIO.write(record, out_handle, "fasta")
         return True
 
     try:
@@ -667,8 +673,14 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
         except Exception as e:
             log_step(temp_file_name, f"Error while trying to remove temp_file_for_seq_store_temp_{idx_num}.txt: {e}")
 
-    os.system(
-        f"awk '/^>/{{ $0 = $0 \"_\" (++i) }}1' your_final_result_{idx_num}.fasta > your_final_result_before_clean_{idx_num}.fasta 2>/dev/null")
+    input_file = f"your_final_result_{idx_num}.fasta"
+    output_file = f"your_final_result_before_clean_{idx_num}.fasta"
+    
+    with open(output_file, "w") as out_handle:
+        for i, record in enumerate(SeqIO.parse(input_file, "fasta"), start=1):
+            record.id = f"{record.id}_{i}"
+            record.description = ""
+            SeqIO.write(record, out_handle, "fasta")
 
     final_results = SeqIO.to_dict(SeqIO.parse(f"your_final_result_before_clean_{idx_num}.fasta", "fasta"))
     final_results_to_list = getList(final_results)
@@ -716,8 +728,13 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
 
-    os.system(
-        f"seqtk seq -L 11 clean_upload_result_{idx_num}.fasta > {os.path.join(results_directory, f'requested_file_{idx_num}.fasta')}")
+    input_file = f"clean_upload_result_{idx_num}.fasta"
+    output_file = os.path.join(results_directory, f"requested_file_{idx_num}.fasta")
+    
+    with open(output_file, "w") as outfile:
+        for record in SeqIO.parse(input_file, "fasta"):
+            if len(record.seq) >= 11:
+                SeqIO.write(record, outfile, "fasta")
 
 
     try:
@@ -774,8 +791,17 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
 
     temp_path_ = os.path.join(results_directory, f"temp_sequence_archieve_{idx_num}.fasta")
 
-    os.system(
-        f"perl -i.withoutnumbers -pe 'BEGIN{{$N=\"00000001\"}}next unless /^>/;s/(>\\S+)/$1|$N/;$N++' {temp_path_}")
+    temp_path = temp_path_  # your input file
+    backup_path = temp_path + ".withoutnumbers"
+    shutil.copy(temp_path, backup_path)
+
+    # Then, rewrite temp_path with modified headers
+    with open(temp_path, "w") as out_handle:
+        for i, record in enumerate(SeqIO.parse(backup_path, "fasta"), start=1):
+            # Append zero-padded number with pipe separator
+            record.id = f"{record.id}|{i:08d}"
+            record.description = ""  # remove original description if desired
+            SeqIO.write(record, out_handle, "fasta")
 
     sequence_archive = SeqIO.to_dict(SeqIO.parse(temp_path_, "fasta"))
 
@@ -815,7 +841,15 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
     with open(file_path, 'w+') as file_for_requested_file_filtered:
         file_for_requested_file_filtered.write(to_file_for_requested_file_filtered)
 
-    os.system(f"perl -pi -e 's/^(>.*)$/$1_CHIMERIC/g' {file_path}")
+    input_file = file_path
+    temp_output = file_path + ".tmp"
+    
+    with open(temp_output, "w") as out_handle:
+        for record in SeqIO.parse(input_file, "fasta"):
+            record.id = record.id + "_CHIMERIC"
+            record.description = ""
+            SeqIO.write(record, out_handle, "fasta")
+    os.replace(temp_output, input_file)
 
 
 
@@ -834,14 +868,7 @@ def worker_process(args):
 
 
 def split_file(input_file, output_dir, num_chunks):
-    """
-    Splits a file into a specified number of chunks.
 
-    Args:
-        input_file (str): Path to the input file.
-        output_dir (str): Directory to save the chunks.
-        num_chunks (int): Number of chunks to split the file into.
-    """
     with open(input_file, 'r') as f:
         lines = f.readlines()
 
