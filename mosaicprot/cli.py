@@ -637,8 +637,11 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
                 refprot_transcript)
 
         try:
-            if os.path.exists(f"clean_seq_{idx_num}.fasta"):
-                os.system(f"cat clean_seq_{idx_num}.fasta >> your_final_result_{idx_num}.fasta")
+            file_in = f"clean_seq_{idx_num}.fasta"
+            file_out = f"your_final_result_{idx_num}.fasta"
+            if os.path.exists(file_in):
+                with open(file_in, 'r') as infile, open(file_out, 'a') as outfile:
+                    outfile.write(infile.read())
         except:
             log_step(temp_file_name, f"clean_seq_{idx_num}.fasta file is not found for {category_type}")
 
@@ -750,8 +753,13 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
         log_step(temp_file_name, f"Error while trying to remove clean_final_result_{idx_num}.fasta: {e}")
 
     temp_path_ = os.path.join(".mosaic_prot_results", f"temp_sequence_archieve_{idx_num}.fasta")
-    os.system("cat '{forward_of_mrna_onlyalt}' '{mrna_onlyref}' > {temp_file_}".format(
-        forward_of_mrna_onlyalt=altprots_file, mrna_onlyref=refprots_file, temp_file_=temp_path_))
+    with open(temp_path_, 'w') as outfile:
+        for fname in [altprots_file, refprots_file]:
+            if os.path.exists(fname):
+                with open(fname, 'r') as infile:
+                    outfile.write(infile.read())
+            else:
+                print(f"Warning: {fname} does not exist and will be skipped.")
     results_directory = ".mosaic_prot_results"
 
     if not os.path.exists(results_directory):
