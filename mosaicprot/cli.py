@@ -89,7 +89,25 @@ def run_alt_orf(mrna_file, proteome_file, alt_output, ref_output, temp_file_name
 
 
 def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcript_file, temp_file_name, idx_num):
-    import os
+
+    files_to_remove = [
+        f"clean_seq_{idx_num}.fasta",
+        f"temp_file_for_seq_store_{idx_num}.txt",
+        f"temp_file_for_seq_store_temp_{idx_num}.txt",
+        f"your_final_result_{idx_num}.fasta",
+        f"your_final_result_before_clean_{idx_num}.fasta",
+        f"clean_final_result_{idx_num}.fasta",
+        f"clean_upload_result_{idx_num}.fasta",
+        os.path.join(".mosaic_prot_results", f"requested_file_{idx_num}.fasta"),
+        os.path.join(".mosaic_prot_results", f"requested_file_filtered{idx_num}.fasta"),
+        os.path.join(".mosaic_prot_results", f"temp_sequence_archieve_{idx_num}.fasta")
+    ]
+
+    if os.path.getsize(input_file) == 0:
+        print(f"Skipping empty chunk {idx_num + 1}")
+        log_step(temp_file_name, f"Skipping empty chunk {idx_num+ 1}")
+        return
+
     if idx_num == 0:
         print("Started to find the chimeric proteins...")
     print(f"Waiting for processing the chunk number {idx_num + 1}...")
@@ -843,7 +861,6 @@ def generate_mosaic_proteins(input_file, refprots_file, altprots_file, transcrip
 
     with open(file_path, "w") as outfile:
         SeqIO.write(updated_records, outfile, "fasta")
-
 
 
 
