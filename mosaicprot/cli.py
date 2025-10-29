@@ -1006,7 +1006,7 @@ def main():
     parser.add_argument(
         '-v', '--version',
         action='version',
-        version='%(prog)s 0.1.11'
+        version='%(prog)s 0.1.12'
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
