@@ -16,7 +16,6 @@ from functools import partial, reduce
 from itertools import chain
 from typing import Iterator
 from pathlib import Path
-from xdg.Locale import regex
 
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 warnings.filterwarnings("ignore", category=BiopythonWarning)
@@ -1007,7 +1006,7 @@ def main():
     parser.add_argument(
         '-v', '--version',
         action='version',
-        version='%(prog)s 0.1.10'
+        version='%(prog)s 0.1.11'
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
